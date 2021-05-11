@@ -140,6 +140,7 @@ int Pixmap::ConvertFormat(unsigned int newFormat, int thre)
     case FMT_NULL:FreePixmap(); return 0; break;
     case FMT_RGB:return ConvertToRGB(); break;
     case FMT_YUV:return ConvertToYUV(); break;
+    case FMT_HSI:return ConvertToHSI();break;
     case FMT_GREY:return ConvertToGrey(); break;
     case FMT_BIN:return ConvertToBin(thre); break;
     default:return 1;
@@ -152,6 +153,7 @@ int Pixmap::ConvertToYUV()
     {
     case FMT_NULL:return 1;
     case FMT_YUV:return 0;
+    case FMT_HSI:ConvertToRGB();
     case FMT_BIN:
     case FMT_GREY:
     case FMT_RGB:
@@ -170,6 +172,41 @@ int Pixmap::ConvertToYUV()
     return 0;
 }
 
+int Pixmap::ConvertToHSI(){
+    switch(format){
+    case FMT_NULL:
+    case FMT_BIN:
+    case FMT_GREY:return 1;
+    case FMT_HSI:return 0;
+    case FMT_YUV:ConvertToRGB();
+    case FMT_RGB:
+        UNUM8 *rp = r, *gp = g, *bp = b;
+        float cr, cg, cb;
+        for (unsigned int i = 0; i < width*height; i++)
+        {
+            cr = (float)(*rp)/255;
+            cb = (float)(*bp)/255;
+            cg = (float)(*gp)/255;
+            UNUM8 minVal = qMin(qMin(cr, cg), cb);
+            float   I = (cr + cg + cb)/3.0f;
+            float   S = 0.0f;
+            float   H = 0.0f;
+            float  diff  = 0.5f*(cr-cg + cr-cb);
+            float  diff2 = (cr-cg)*(cr-cg) + (cr-cb)*(cg-cb);  //diff2 永远 > 0
+            float  sita  = acos(diff/sqrt(diff2))/PI*2;
+            H = (cg>=cb) ? sita : 1.0f - sita;
+            S = 1.0f - minVal/I;
+//            if(H<0.0f) H+=1.0f;
+//            else if(H>1.0f) H-=1.0f;
+            *rp++ = (UNUM8)qRound(I*255);
+            *gp++ = (UNUM8)qRound(S*255);
+            *bp++ = (UNUM8)qRound(H*255);
+        }
+        format = FMT_HSI;
+    }
+    return 9;
+}
+
 template<typename T> static T ClipToUNUM8(T x)
 {
     if (x < 0)
@@ -186,6 +223,7 @@ int Pixmap::ConvertToRGB()
     case FMT_GREY:format = FMT_RGB; return 0;
     case FMT_RGB:return 0;
     case FMT_YUV:
+    {
         UNUM8 *yp = r, *up = g, *vp = b;
         double y, u, v;
         for (unsigned int i = 0; i < width*height; i++)
@@ -197,7 +235,47 @@ int Pixmap::ConvertToRGB()
             *up++ = (UNUM8)ClipToUNUM8(y - 0.39*u - 0.58*v);
             *vp++ = (UNUM8)ClipToUNUM8(y + 2.03*u);
         }
+        format = FMT_RGB;return 0;
+    }
+    case FMT_HSI:
+    {
+        UNUM8 *ip = r, *sp = g, *hp = b;
+        float H, S, I;
+        float R, G, B;
+        for (unsigned int i = 0; i < width*height; i++)
+        {
+            I = (float)(*ip)/255;
+            S = (float)(*sp)/255;
+            H = (float)(*hp)/255*2*PI;
+            if(H>=0&&H<(PI*2/3)){
+                B=(1-S)*I;
+                R=(1+(S*cos(H))/cos(PI/3-H))*I;
+                G=(3*I-(R+B));
+                *hp++=(UNUM8)ClipToUNUM8(B*255);
+                *ip++=(UNUM8)ClipToUNUM8(R*255);
+                *sp++=(UNUM8)ClipToUNUM8(G*255);
+            }
+            else if(H>=(PI*2/3)&&H<(PI*4/3)){
+                H-=2*PI/3;
+                R=(1-S)*I;
+                G=(1+(S*cos(H))/cos(PI/3-H))*I;
+                B=(3*I-(R+G));
+                *hp++=(UNUM8)ClipToUNUM8(B*255);
+                *ip++=(UNUM8)ClipToUNUM8(R*255);
+                *sp++=(UNUM8)ClipToUNUM8(G*255);
+            }
+            else if(H>=(PI*4/3)&&H<(PI*2)){
+                H-=4*PI/3;
+                G=(1-S)*I;
+                B=(1+(S*cos(H))/cos(PI/3-H))*I;
+                R=(3*I-(G+B));
+                *hp++=(UNUM8)ClipToUNUM8(B*255);
+                *ip++=(UNUM8)ClipToUNUM8(R*255);
+                *sp++=(UNUM8)ClipToUNUM8(G*255);
+            }
+        }
         format = FMT_RGB;
+    }
     }
     return 0;
 }
@@ -209,7 +287,8 @@ int Pixmap::ConvertToGrey()
     case FMT_BIN:	format = FMT_GREY; return 0;
     case FMT_GREY:return 0;
     case FMT_NULL:return 1;
-    case FMT_YUV:ConvertToRGB();
+    case FMT_YUV:
+    case FMT_HSI:ConvertToRGB();
     case FMT_RGB:
         UNUM8 cr, cg, cb, *pr = r, *pg = g, *pb = b;
         for (unsigned int i = 0; i < width*height; i++)
@@ -264,6 +343,7 @@ int Pixmap::ConvertToBin(int thre)
     {
     case FMT_BIN:return 0;
     case FMT_NULL:return 1;
+    case FMT_HSI:
     case FMT_YUV:
     case FMT_RGB:ConvertToGrey();
     case FMT_GREY:
@@ -301,6 +381,11 @@ int Pixmap::InverseColor()
         yuvFlag = 1;
         ConvertToRGB();
     }
+    int hsiFlag = 0;
+    if(format==FMT_HSI){
+        hsiFlag=1;
+        ConvertToRGB();
+    }
     unsigned char *pr = r, *pg = g, *pb = b;
     for (unsigned int i = 0; i < width*height; i++)
     {
@@ -310,6 +395,8 @@ int Pixmap::InverseColor()
     }
     if (yuvFlag)
         ConvertToYUV();
+    if(hsiFlag)
+        ConvertToHSI();
     return 0;
 }
 
