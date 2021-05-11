@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(littlePS LANGUAGES CXX)
+project(miniPS LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -35,19 +35,19 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(littlePS
+    qt_add_executable(miniPS
         ${PROJECT_SOURCES}
     )
 else()
     if(ANDROID)
-        add_library(littlePS SHARED
+        add_library(miniPS SHARED
             ${PROJECT_SOURCES}
         )
     else()
-        add_executable(littlePS
+        add_executable(miniPS
             ${PROJECT_SOURCES}
         )
     endif()
 endif()
 
-target_link_libraries(littlePS PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(miniPS PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
