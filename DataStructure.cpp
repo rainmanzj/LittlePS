@@ -303,6 +303,94 @@ int Pixmap::ConvertToGrey()
     return 0;
 }
 
+shared_ptr<Pixmap> Pixmap::OrderDitherToBin(double * filter, unsigned int filterSize)
+{
+    if (this->format == FMT_NULL || filter == NULL ||this->format==FMT_BIN)
+        return nullptr;
+    else if(this->format!=FMT_GREY)ConvertToGrey();
+    int MaxVal=(filterSize-1)*(filterSize-1);
+    shared_ptr<Pixmap> res=shared_ptr<Pixmap>(new Pixmap(width,height));
+    double *dataR = (double*)malloc(sizeof(double)*width*height);
+    double *dataG = (double*)malloc(sizeof(double)*width*height);
+    double *dataB = (double*)malloc(sizeof(double)*width*height);
+    double tmpR, tmpG, tmpB;
+
+    for (unsigned int x = 0; x < width; x+=filterSize)
+        for (unsigned int y = 0; y < height; y+=filterSize)
+        {
+            for (unsigned int i = 0; i < filterSize; i++)
+                for (unsigned int j = 0; j < filterSize; j++)
+                {
+                    if((x+i)<width&&(y+i)<height){
+                        tmpR = (*(this->getR(x+i, y+j)))/255*MaxVal;
+                        tmpG = (*(this->getG(x+i, y+j)))/255*MaxVal;
+                        tmpB = (*(this->getB(x+i, y+j)))/255*MaxVal;
+                        *(dataR+y*width+x)=tmpR<(*(filter+j*filterSize+i))?0:255;
+                        *(dataG+y*width+x)=tmpG<(*(filter+j*filterSize+i))?0:255;
+                        *(dataB+y*width+x)=tmpB<(*(filter+j*filterSize+i))?0:255;
+                    }
+                }
+        }
+
+    UNUM8 *resR = res->getRHead(), *resG = res->getGHead(), *resB = res->getBHead(), *resA = res->getAHead();
+    const UNUM8 *srcA = this->getAHead();
+    for (unsigned int i = 0; i < width*height; i++, dataR++, dataG++, dataB++, resR++, resG++, resB++, resA++, srcA++)
+    {
+        *resR = (UNUM8)ClipToUNUM8(*dataR);
+        *resG = (UNUM8)ClipToUNUM8(*dataG);
+        *resB = (UNUM8)ClipToUNUM8(*dataB);
+        *resA = *srcA;
+    }
+    //delete src;
+    res->format=FMT_BIN;
+    return res;
+}
+shared_ptr<Pixmap> Pixmap::UnOrderedDitherToBin(double * filter, unsigned int filterSize)
+{
+    if (this->format == FMT_NULL || filter == NULL ||this->format==FMT_BIN)
+        return nullptr;
+    else if(this->format!=FMT_GREY)ConvertToGrey();
+    int MaxVal=(filterSize-1)*(filterSize-1);
+    int newWidth=width*filterSize;
+    int newHeight=height*filterSize;
+    shared_ptr<Pixmap> res=shared_ptr<Pixmap>(new Pixmap(width,height));
+    double *dataR = (double*)malloc(sizeof(double)*newWidth*newHeight);
+    double *dataG = (double*)malloc(sizeof(double)*newWidth*newHeight);
+    double *dataB = (double*)malloc(sizeof(double)*newWidth*newHeight);
+    double tmpR, tmpG, tmpB;
+
+    for (unsigned int x = 0; x < width; x++)
+        for (unsigned int y = 0; y < height; y++)
+        {
+            for (unsigned int i = 0; i < filterSize; i++)
+                for (unsigned int j = 0; j < filterSize; j++)
+                {
+                    tmpR = (*(this->getR(x, y)))/255*MaxVal;
+                    tmpG = (*(this->getG(x, y)))/255*MaxVal;
+                    tmpB = (*(this->getB(x, y)))/255*MaxVal;
+                    *(dataR+y*width*filterSize+x*filterSize+i+j*width*filterSize)=tmpR<(*(filter+j*filterSize+i))?0:255;
+                    *(dataG+y*width*filterSize+x*filterSize+i+j*width*filterSize)=tmpG<(*(filter+j*filterSize+i))?0:255;
+                    *(dataB+y*width*filterSize+x*filterSize+i+j*width*filterSize)=tmpB<(*(filter+j*filterSize+i))?0:255;
+                }
+        }
+
+    UNUM8 *resR = res->getRHead(), *resG = res->getGHead(), *resB = res->getBHead(), *resA = res->getAHead();
+    const UNUM8 *srcA = this->getAHead();
+    for (unsigned int i = 0; i < width*height; i++, dataR++, dataG++, dataB++, resR++, resG++, resB++, resA++, srcA++)
+    {
+        *resR = (UNUM8)ClipToUNUM8(*dataR);
+        *resG = (UNUM8)ClipToUNUM8(*dataG);
+        *resB = (UNUM8)ClipToUNUM8(*dataB);
+        *resA = *srcA;
+    }
+    //delete src;
+    res->format=FMT_BIN;
+    return res;
+}
+
+
+
+
 unsigned char Pixmap::OtsuGetThre()
 {
     if (format != FMT_GREY)
