@@ -69,6 +69,9 @@ public:
     unsigned char OtsuGetThre();	//获得大津法阈值
     int ConvertToBin(int thre=-1);	//二值化，若thre不在0~255之间，则先进行大津法求阈值操作
 
+    shared_ptr<Pixmap> OrderDitherToBin(double * filter, unsigned int filterSize);
+    shared_ptr<Pixmap> UnOrderedDitherToBin(double * filter, unsigned int filterSize);
+
     void ChangeLuma(int del);	//改变YUV通道中的Y值，并恢复原格式
     int InverseColor();	//反色
     int LogOperation();	//对数操作
