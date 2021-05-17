@@ -130,12 +130,7 @@ void MainWindow::on_action_RGB_to_HSI_triggered()
     update();
 }
 
-void MainWindow::on_action_RG_to_YcbCr_triggered()
-{
-    curPixmap->ConvertToYUV();
-    ui->label->setPixmap(QPixmap::fromImage(*(curPixmap->Output())));
-    update();
-}
+
 
 void MainWindow::on_action_HSI_to_RGB_triggered()
 {
@@ -144,7 +139,15 @@ void MainWindow::on_action_HSI_to_RGB_triggered()
     update();
 }
 
-void MainWindow::on_action_YCbCr_to_RGB_triggered()
+
+void MainWindow::on_action_RGB_to_YUV_triggered()
+{
+    curPixmap->ConvertToYUV();
+    ui->label->setPixmap(QPixmap::fromImage(*(curPixmap->Output())));
+    update();
+}
+
+void MainWindow::on_action_YUV_to_RGB_triggered()
 {
     curPixmap->ConvertToRGB();
     ui->label->setPixmap(QPixmap::fromImage(*(curPixmap->Output())));
@@ -153,9 +156,16 @@ void MainWindow::on_action_YCbCr_to_RGB_triggered()
 
 
 
-void MainWindow::on_action_RGB_to_grey_triggered()
+void MainWindow::on_action_RGB_to_grey_YUV_triggered()
 {
     curPixmap->ConvertToGrey();
+    ui->label->setPixmap(QPixmap::fromImage(*(curPixmap->Output())));
+    update();
+}
+
+void MainWindow::on_action_RGB_to_Grey_HSI_triggered()
+{
+    curPixmap->ConvertToGreyHSI();
     ui->label->setPixmap(QPixmap::fromImage(*(curPixmap->Output())));
     update();
 }
@@ -189,3 +199,6 @@ void MainWindow::on_action_quantization_triggered()
 
 
 }
+
+
+

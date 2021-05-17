@@ -66,6 +66,7 @@ public:
     int ConvertToYUV();     //转化为YUV颜色格式
     int ConvertToRGB();     //转化为RGB颜色格式
     int ConvertToGrey();	//用YUV中的Y通道填充RGB，转换为灰阶图像
+    int ConvertToGreyHSI(); //用HSI中的I通道填充RGB，转换为灰阶图像
     int ConvertToHSI();     //转化为HSI颜色格式,注意灰度图无法转化,转化后的值是RGB->ISH
     unsigned char OtsuGetThre();	//获得大津法阈值
     int ConvertToBin(int thre=-1);	//二值化，若thre不在0~255之间，则先进行大津法求阈值操作

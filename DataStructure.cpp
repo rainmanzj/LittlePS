@@ -290,7 +290,6 @@ int Pixmap::ConvertToGrey()
     case FMT_GREY:return 0;
     case FMT_NULL:return 1;
     case FMT_YUV:
-    case FMT_HSI:ConvertToRGB();
     case FMT_RGB:
         UNUM8 cr, cg, cb, *pr = r, *pg = g, *pb = b;
         for (unsigned int i = 0; i < width*height; i++)
@@ -299,6 +298,28 @@ int Pixmap::ConvertToGrey()
             cg = *pg;
             cb = *pb;
             *pr++ = *pg++ = *pb++ = (UNUM8)(0.3*cr + 0.59*cg + 0.11*cb);
+        }
+        format = FMT_GREY;
+    }
+    return 0;
+}
+
+int Pixmap::ConvertToGreyHSI()
+{
+    switch (format)
+    {
+    case FMT_BIN:	format = FMT_GREY; return 0;
+    case FMT_GREY:return 0;
+    case FMT_NULL:return 1;
+    case FMT_YUV:
+    case FMT_RGB:
+        UNUM8 cr, cg, cb, *pr = r, *pg = g, *pb = b;
+        for (unsigned int i = 0; i < width*height; i++)
+        {
+            cr = *pr;
+            cg = *pg;
+            cb = *pb;
+            *pr++ = *pg++ = *pb++ = (UNUM8)(0.33*cr + 0.33*cg + 0.33*cb);
         }
         format = FMT_GREY;
     }

@@ -84,10 +84,11 @@
     <addaction name="action_dither"/>
     <addaction name="action_ordered_dither"/>
     <addaction name="action_RGB_to_HSI"/>
-    <addaction name="action_RG_to_YcbCr"/>
     <addaction name="action_HSI_to_RGB"/>
-    <addaction name="action_YCbCr_to_RGB"/>
-    <addaction name="action_RGB_to_grey"/>
+    <addaction name="action_RGB_to_YUV"/>
+    <addaction name="action_YUV_to_RGB"/>
+    <addaction name="action_RGB_to_grey_YUV"/>
+    <addaction name="action_RGB_to_Grey_HSI"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -149,9 +150,9 @@
     <string>RGBtoHSI</string>
    </property>
   </action>
-  <action name="action_RG_to_YcbCr">
+  <action name="action_RGB_to_YUV">
    <property name="text">
-    <string>RGBtoYCbCr</string>
+    <string>RGBtoYUV</string>
    </property>
   </action>
   <action name="action_HSI_to_RGB">
@@ -159,19 +160,24 @@
     <string>HSItoRGB</string>
    </property>
   </action>
-  <action name="action_YCbCr_to_RGB">
+  <action name="action_YUV_to_RGB">
    <property name="text">
-    <string>YCbCrtoRGB</string>
+    <string>YUVtoRGB</string>
    </property>
   </action>
-  <action name="action_RGB_to_grey">
+  <action name="action_RGB_to_grey_YUV">
    <property name="text">
-    <string>RGBtoGrey</string>
+    <string>RGBtoGrey(YUV)</string>
    </property>
   </action>
   <action name="action_quantization">
    <property name="text">
     <string>均匀量化</string>
+   </property>
+  </action>
+  <action name="action_RGB_to_Grey_HSI">
+   <property name="text">
+    <string>RGBtoGrey(HSI)</string>
    </property>
   </action>
  </widget>

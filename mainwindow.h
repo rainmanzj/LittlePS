@@ -39,17 +39,21 @@ private slots:
 
     void on_action_RGB_to_HSI_triggered();
 
-    void on_action_RG_to_YcbCr_triggered();
-
     void on_action_HSI_to_RGB_triggered();
-
-    void on_action_YCbCr_to_RGB_triggered();
 
     void on_action_power_law_triggered();
 
-    void on_action_RGB_to_grey_triggered();
+    void on_action_RGB_to_grey_YUV_triggered();
+
+    void on_action_RGB_to_Grey_HSI_triggered();
 
     void on_action_quantization_triggered();
+
+    void on_action_RGB_to_YUV_triggered();
+
+    void on_action_YUV_to_RGB_triggered();
+
+
 
 private:
     Ui::MainWindow *ui;
