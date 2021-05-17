@@ -180,9 +180,11 @@ void MainWindow::on_action_quantization_triggered()
     }
 
     aimage = QImage(AfterScaled,image.width(),image.height(),QImage::Format_Indexed8);
+    rimage = QImage(Recover,image.width(),image.height(),QImage::Format_Indexed8);
     QPixmap apix = QPixmap::fromImage(aimage);
-
+    QPixmap rpix = QPixmap::fromImage(rimage);
     ui->label->setPixmap(apix);
+    //ui->label->setPixmap(rpix);
     update();
 
 
