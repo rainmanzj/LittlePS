@@ -6,20 +6,6 @@ using namespace PIXMAP;
 #define PI 3.141592
 #endif
 
-typedef struct strBmpFileHeader
-{
-    UNUM16 bfType, bfReserved1, bfReserved2;
-    UNUM32 bfSize, bfOffBits;
-}BmpFileHeader;
-
-typedef struct strBmpFileInformation
-{
-    UNUM16 biPlanes, biBitCount;
-    UNUM32 biSize, biWidth, biCompression, biSizeImage, biXPelsPerMeter, biYPelsPerMeter, biClrUsed, biClrImportant;
-    SNUM32 biHeight;
-}BmpFileInformation;
-
-
 //设定位图宽高构造
 Pixmap::Pixmap(unsigned int width, unsigned int height, unsigned char value=0) :format(PIXMAP::FMT_NULL), r(NULL), g(NULL), b(NULL), a(NULL),width(width),height(height)
 {
@@ -45,6 +31,126 @@ Pixmap::Pixmap(QString fileName):height(0),width(0),format(PIXMAP::FMT_NULL), r(
         Load(tmpImage);
     }
 
+}
+
+Pixmap::Pixmap(QString fileName,QString fileType)
+{
+    if(fileType=="BMP"){
+        BITMAPFILEHEADER bf;
+        BITMAPINFOHEADER bi;
+        RGBQUAD *lpRGB;
+        FILE * fp;
+        QByteArray ba=fileName.toLatin1();
+        char *file=ba.data();
+        fp=fopen(file,"rb");
+        //fread(&bf,sizeof(BITMAPFILEHEADER),1,fp);由于结构体填充的问题，会导致结构体为16字节，直接写死就可以了
+        fread(&bf,14,1,fp);
+        //qDebug()<<sizeof (WORD)<<" "<<sizeof(DWORD)<<" "<<sizeof(BITMAPFILEHEADER);
+        if(bf.bfType!=0x4d42)
+        {
+            fclose(fp);
+            return ;
+        }
+
+        //fread(&bi,sizeof(BITMAPINFOHEADER),1,fp);
+        fread(&bi,40,1,fp);
+        LONG bmpWidth = bi.biWidth;
+        LONG bmpHeight = bi.biHeight;
+
+        if(bi.biBitCount==24||bi.biBitCount==32){
+            //真彩色，直接可以读颜色咯
+            int totalSize = (bmpWidth *bi.biBitCount/8+3)/4*4*bmpHeight;
+            BYTE *pBmpBuf = new BYTE[totalSize];
+            size_t size = 0;
+            while(true)
+            {
+                int iret = fread(&pBmpBuf[size],1,1,fp);
+                if(iret == 0)
+                    break;
+                size = size + iret;
+            }
+            fclose(fp);
+
+            width=bmpWidth;
+            height=bmpHeight;
+            r = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+            g = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+            b = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+            a = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+            isOpen=true;
+            format=PIXMAP::FMT_RGB;
+            //a在32位的时候是可能的吗？
+            memset(a, 255, width*height);
+            unsigned char *pr=r,*pg=g,*pb=b;
+
+            //开始存到Pixmap里面
+            unsigned int pitch=width%4;
+            for(unsigned int i=0;i<height;i++)
+            {
+                int realPitch=i*pitch;
+                for(unsigned j=0;j<width;j++)
+                {
+                    *pr++=pBmpBuf[(i*width+j)*3+2+realPitch];
+                    *pg++=pBmpBuf[(i*width+j)*3+1+realPitch];
+                    *pb++=pBmpBuf[(i*width+j)*3+realPitch];
+                }
+            }
+            delete [] pBmpBuf;
+            pBmpBuf = NULL;
+            return ;
+    }else if(bi.biBitCount==8){
+            //8位 256 的图，可能是彩色，也可能是灰度
+            //注意读入调色板应该有256个元素
+
+            lpRGB=(RGBQUAD *)malloc(4*256);
+            fread(&lpRGB,1,256,fp);
+
+            int totalSize = (bmpWidth *bi.biBitCount/8+3)/4*4*bmpHeight;
+            BYTE *pBmpBuf = new BYTE[totalSize];
+            size_t size = 0;
+            while(true)
+            {
+                int iret = fread(&pBmpBuf[size],1,1,fp);
+                if(iret == 0)
+                    break;
+                size = size + iret;
+            }
+            fclose(fp);
+
+            width=bmpWidth;
+            height=bmpHeight;
+            r = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+            g = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+            b = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+            a = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+            isOpen=true;
+            format=PIXMAP::FMT_RGB;
+            //a在32位的时候是可能的吗？
+            memset(a, 255, width*height);
+            unsigned char *pr=r,*pg=g,*pb=b;
+
+            //开始存到Pixmap里面
+            unsigned int pitch=width%4;
+            for(unsigned int i=0;i<height;i++)
+            {
+                int realPitch=i*pitch;
+                for(unsigned j=0;j<width;j++)
+                {
+                    *pr++=lpRGB[pBmpBuf[(i*width+j)*3+realPitch]].rgbRed;
+                    *pg++=lpRGB[pBmpBuf[(i*width+j)*3+realPitch]].rgbGreen;
+                    *pb++=lpRGB[pBmpBuf[(i*width+j)*3+realPitch]].rgbBlue;
+                }
+            }
+            delete [] pBmpBuf;
+            pBmpBuf = NULL;
+            return ;
+
+        }else if(bi.biBitCount==1){
+
+        }else{
+            return;
+        }
+    }
 }
 
 int Pixmap::Load(const Pixmap &pixmap)
@@ -174,6 +280,13 @@ int Pixmap::ConvertToYUV()
     return 0;
 }
 
+template<typename T> static T ClipToUNUM8(T x)
+{
+    if (x < 0)
+        return 0;
+    return (x > 255) ? 255 : x;
+}
+
 int Pixmap::ConvertToHSI(){
     switch(format){
     case FMT_NULL:
@@ -183,38 +296,32 @@ int Pixmap::ConvertToHSI(){
     case FMT_YUV:ConvertToRGB();
     case FMT_RGB:
         UNUM8 *rp = r, *gp = g, *bp = b;
-        float cr, cg, cb;
+        double cr, cg, cb;
         for (unsigned int i = 0; i < width*height; i++)
         {
-            cr = (float)(*rp)/255;
-            cb = (float)(*bp)/255;
-            cg = (float)(*gp)/255;
-            UNUM8 minVal = qMin(qMin(cr, cg), cb);
-            float   I = (cr + cg + cb)/3.0f;
-            float   S = 0.0f;
-            float   H = 0.0f;
-            float  diff  = 0.5f*(cr-cg + cr-cb);
-            float  diff2 = (cr-cg)*(cr-cg) + (cr-cb)*(cg-cb);  //diff2 永远 > 0
-            float  sita  = acos(diff/sqrt(diff2))/PI*2;
-            H = (cg>=cb) ? sita : 1.0f - sita;
-            S = 1.0f - minVal/I;
-//            if(H<0.0f) H+=1.0f;
-//            else if(H>1.0f) H-=1.0f;
-            *rp++ = (UNUM8)qRound(I*255);
-            *gp++ = (UNUM8)qRound(S*255);
-            *bp++ = (UNUM8)qRound(H*255);
+            cr = (double)(*rp)/255.0;
+            cb = (double)(*bp)/255.0;
+            cg = (double)(*gp)/255.0;
+            double minVal = qMin(qMin(cr, cg), cb);
+            double   I = (cr + cg + cb)/3.0;
+            double   S = 0.0;
+            double   H = 0.0;
+            double  diff  = 0.5*(cr-cg + cr-cb);
+            double  diff2 = (cr-cg)*(cr-cg) + (cr-cb)*(cg-cb);
+            double  sita  = acos(diff/(sqrt(diff2)+1e-5));
+            H = (cg>=cb) ? sita : 2.0*PI - sita;
+            S = 1.0 - minVal/I;
+            H = H/(2.0*PI);
+            *rp++ = (UNUM8)ClipToUNUM8(I*255.0);
+            *gp++ = (UNUM8)ClipToUNUM8(S*255.0);
+            *bp++ = (UNUM8)ClipToUNUM8(H*255.0);
         }
         format = FMT_HSI;
     }
-    return 9;
+    return 0;
 }
 
-template<typename T> static T ClipToUNUM8(T x)
-{
-    if (x < 0)
-        return 0;
-    return (x > 255) ? 255 : x;
-}
+
 
 int Pixmap::ConvertToRGB()
 {
@@ -242,42 +349,87 @@ int Pixmap::ConvertToRGB()
     case FMT_HSI:
     {
         UNUM8 *ip = r, *sp = g, *hp = b;
-        float H, S, I;
-        float R, G, B;
+        double H, S, I;
+        double t1,t2,t3;
+        double R, G, B;
         for (unsigned int i = 0; i < width*height; i++)
         {
-            I = (float)(*ip)/255;
-            S = (float)(*sp)/255;
-            H = (float)(*hp)/255*2*PI;
-            if(H>=0&&H<(PI*2/3)){
-                B=(1-S)*I;
-                R=(1+(S*cos(H))/cos(PI/3-H))*I;
-                G=(3*I-(R+B));
-                *hp++=(UNUM8)ClipToUNUM8(B*255);
-                *ip++=(UNUM8)ClipToUNUM8(R*255);
-                *sp++=(UNUM8)ClipToUNUM8(G*255);
+            I = (double)(*ip)/255.0;
+            S = (double)(*sp)/255.0;
+            H = (double)(*hp)/255.0*2.0*PI;
+            t1=(1.0-S)/3.0;
+            if(H>=0&&H<(PI*2.0/3.0)){
+                B=t1;
+                t2=S*cos(H);
+                t3=cos(PI/3.0-H);
+                R=(1.0+t2/t3)/3.0;
+                R=3.0*I*R;
+                B=3.0*I*B;
+                G=3.0*I-(R+B);
             }
-            else if(H>=(PI*2/3)&&H<(PI*4/3)){
-                H-=2*PI/3;
-                R=(1-S)*I;
-                G=(1+(S*cos(H))/cos(PI/3-H))*I;
-                B=(3*I-(R+G));
-                *hp++=(UNUM8)ClipToUNUM8(B*255);
-                *ip++=(UNUM8)ClipToUNUM8(R*255);
-                *sp++=(UNUM8)ClipToUNUM8(G*255);
+            else if(H>=(PI*2.0/3.0)&&H<(PI*4.0/3.0)){
+                R=t1;
+                t2=S*cos(H-2.0*PI/3.0);
+                t3=cos(PI-H);
+                G=(1.0+t2/t3)/3.0;
+                R=3.0*I*R;
+                G=3.0*G*I;
+                B=3.0*I-(R+G);
             }
-            else if(H>=(PI*4/3)&&H<(PI*2)){
-                H-=4*PI/3;
-                G=(1-S)*I;
-                B=(1+(S*cos(H))/cos(PI/3-H))*I;
-                R=(3*I-(G+B));
-                *hp++=(UNUM8)ClipToUNUM8(B*255);
-                *ip++=(UNUM8)ClipToUNUM8(R*255);
-                *sp++=(UNUM8)ClipToUNUM8(G*255);
+            else if(H>=(PI*4.0/3.0)&&H<=(PI*2.0)){
+                G=t1;
+                t2=S*cos(H-4.0*PI/3.0);
+                t3=cos(PI*5.0/3.0-H);
+                B=(1.0+t2/t3)/3.0;
+                G=3.0*G*I;
+                B=3.0*I*B;
+                R=3.0*I-(G+B);
             }
+            *ip++=(UNUM8)ClipToUNUM8(R*255.0);
+            *hp++=(UNUM8)ClipToUNUM8(B*255.0);
+            *sp++=(UNUM8)ClipToUNUM8(G*255.0);
         }
-        format = FMT_RGB;
+        format = FMT_RGB;return 0;
     }
+    case FMT_YCbCr:{
+        UNUM8 *yp = r, *up = g, *vp = b;
+        double y, cb, cr;
+        for (unsigned int i = 0; i < width*height; i++)
+        {
+            y = *yp-15;
+            cb = *up-127;
+            cr = *vp-127;
+            *yp++ = (UNUM8)ClipToUNUM8(1.164*y + 1.596*cr);
+            *up++ = (UNUM8)ClipToUNUM8(1.164*y - 0.392*cb - 0.813*cr);
+            *vp++ = (UNUM8)ClipToUNUM8(1.164*y + 2.017*cb);
+        }
+        format = FMT_RGB;return 0;
+    }
+    }
+    return 0;
+}
+
+int Pixmap::ConvertToYCbCr(){
+    switch (format)
+    {
+    case FMT_NULL:
+    case FMT_GREY:
+    case FMT_BIN:	 return 0;
+    case FMT_YCbCr:  return 1;
+    case FMT_YUV:
+    case FMT_HSI:ConvertToRGB();
+    case FMT_RGB:
+        UNUM8 cr, cg, cb, *rp = r, *gp = g, *bp = b, y;
+        for (unsigned int i = 0; i < width*height; i++)
+        {
+            cr = *rp;
+            cg = *gp;
+            cb = *bp;
+            *rp++ = y = (UNUM8)(0.257*cr + 0.564*cg + 0.098*cb+15);
+            *gp++ = (UNUM8)(-0.148*cr-0.291*cg+0.439*cb+127);
+            *bp++ = (UNUM8)(0.439*cr-0.368*cg-0.071*cb+127);
+        }
+        format = FMT_YCbCr;
     }
     return 0;
 }

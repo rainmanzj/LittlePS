@@ -42,6 +42,25 @@ void MainWindow::on_action_openPic_triggered()
     update();
 }
 
+void MainWindow::on_action_open_pic_bmp_triggered()
+{
+    QString filename = QFileDialog::getOpenFileName(this,"打开图片","C:\\");
+    if(filename.isEmpty())
+    {
+        QMessageBox::warning(this,"未选择文件","请选择图片！");
+        return;
+     }
+    QString fileType("BMP");
+    curPixmap=new Pixmap(filename,fileType);
+    if(curPixmap->getPicOPen()){
+    ui->label->setPixmap(QPixmap::fromImage(*(curPixmap->Output())));
+    update();
+    }else{
+        QMessageBox::warning(this,"确定打开的是bmp格式的吗？","打开文件失败！");
+        return;
+    }
+}
+
 void MainWindow::on_action_to_binary_triggered()
 {
     if(!QMessageBox::question(this,QStringLiteral("单阈值法"),QStringLiteral("是否手动设置阈值？"),QStringLiteral("手动设置"),
@@ -201,4 +220,17 @@ void MainWindow::on_action_quantization_triggered()
 }
 
 
+void MainWindow::on_action_YCbCr_to_RGB_triggered()
+{
+    curPixmap->ConvertToRGB();
+    ui->label->setPixmap(QPixmap::fromImage(*(curPixmap->Output())));
+    update();
 
+}
+
+void MainWindow::on_action_RGB_to_YCbCr_triggered()
+{
+    curPixmap->ConvertToYCbCr();
+    ui->label->setPixmap(QPixmap::fromImage(*(curPixmap->Output())));
+    update();
+}

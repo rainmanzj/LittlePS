@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include "DataStructure.h"
 #include <QPainter>
+#include <cstdio>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -54,6 +55,12 @@ private slots:
     void on_action_YUV_to_RGB_triggered();
 
 
+
+    void on_action_open_pic_bmp_triggered();
+
+    void on_action_YCbCr_to_RGB_triggered();
+
+    void on_action_RGB_to_YCbCr_triggered();
 
 private:
     Ui::MainWindow *ui;

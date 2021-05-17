@@ -12,16 +12,11 @@
 
 namespace PIXMAP{
 enum{
-    FMT_NULL,FMT_RGB,FMT_YUV,FMT_GREY,FMT_BIN,FMT_HSI
+    FMT_NULL,FMT_RGB,FMT_YUV,FMT_GREY,FMT_BIN,FMT_HSI,FMT_YCbCr
 };
 enum {
     SELECT_R=1,SELECT_G=2,SELECT_B=4,SELECT_GREY=8
 };	//标记需要计数的通道
-enum{
-    //这里的枚举 后续逐步添加
-    INVERSECOLOR,HISTOEQUALIZING,
-    CONVERTGREY,CONVERTBIN
-};
 }
 
 using namespace std;
@@ -37,6 +32,56 @@ typedef struct {
     UNUM8 r, g, b, a,empty;
 }Pixel32b;
 
+
+//直接读取bmp格式(windows.h里面的)
+//位图头文件 14字节
+//位图信息头 40字节
+//调色板(palette):颜色定义，长度可变
+//图像数据
+
+typedef unsigned char BYTE;
+typedef unsigned short WORD;
+typedef unsigned long DWORD;
+typedef long LONG;
+
+//位图头文件 14Byte 2+4+2+2+4
+typedef struct{
+    WORD bfType;    //文件类型，必须是字符串"BM" 即0x424D
+    DWORD bfSize;        // file size
+    WORD bfReserved1;   //保留字不考虑
+    WORD bfReserved2;
+    DWORD bfOffBits;    // offset from file header to pixel data
+}BITMAPFILEHEADER;
+
+//位图信息头 40Byte
+typedef struct{
+    DWORD biSize;        // structure size 固定40
+    LONG biWidth;        //图像宽度
+    LONG biHeight;      //图像高度
+    WORD biPlanes;        // must be 1
+    WORD biBitCount;    // bit number of one pixel
+    DWORD biCompression;//压缩类型 BI_RGB不压缩
+    DWORD biSizeImage;  //实际图像数据占用的字节数
+    LONG  biXPelsPerMeter; //水平分辨率
+    LONG  biYPelsPerMeter;  //垂直分辨率
+    DWORD biClrUsed;    //实际使用的颜色数 Default=0
+    DWORD biClrImportant;//重要的颜色数
+}BITMAPINFOHEADER;
+
+//调色板是一个数组，共有2^biBitCount个元素，数组中每个元素的类型为一个结构体，占据4字节
+typedef struct{
+    BYTE rgbBlue;
+    BYTE rgbGreen;
+    BYTE rgbRed;
+    BYTE rgbReserved;
+}RGBQUAD ;
+//真彩色图24/32 BITMAPINFOHEADER后面直接是位图数据，就是RGB
+//biBitCount为1 4 8时，图像数据是该像素颜色在调色板中对应的索引值；
+//1，调色板数组仅有(0,0,0,0)  (255,255,255,0)
+//4 调色板数组16元素，4bit表示一个像素颜色
+//8 1byte表示一个像素，8-bit gray 调色板R=B=G, 8-bit color一般具有不同的调色板
+
+
 class Pixmap
 {
     unsigned int height, width, format;	//height为图像高度 width为图像宽度 format为状态
@@ -44,8 +89,10 @@ class Pixmap
     bool isOpen=false;
 public:
 
-    //从文件读入
+    //从文件读入QImage自动探测
     Pixmap(QString fileName);
+    //文件操作读入bmp
+    Pixmap(QString fileName,QString fileType);
     //拷贝构造
     Pixmap(const Pixmap &pixmap);
     //设定位图宽高构造
@@ -68,8 +115,10 @@ public:
     int ConvertToGrey();	//用YUV中的Y通道填充RGB，转换为灰阶图像
     int ConvertToGreyHSI(); //用HSI中的I通道填充RGB，转换为灰阶图像
     int ConvertToHSI();     //转化为HSI颜色格式,注意灰度图无法转化,转化后的值是RGB->ISH
+    int ConvertToYCbCr(); //
     unsigned char OtsuGetThre();	//获得大津法阈值
     int ConvertToBin(int thre=-1);	//二值化，若thre不在0~255之间，则先进行大津法求阈值操作
+
 
     Pixmap* OrderDitherToBin(double * filter, unsigned int filterSize);
     Pixmap* UnOrderedDitherToBin(double * filter, unsigned int filterSize);
