@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cmath>
 
+
 namespace PIXMAP{
 enum{
     FMT_NULL,FMT_RGB,FMT_YUV,FMT_GREY,FMT_BIN,FMT_HSI,FMT_YCbCr
@@ -87,6 +88,12 @@ class Pixmap
     unsigned int height, width, format;	//height为图像高度 width为图像宽度 format为状态
     UNUM8 *r, *g, *b, *a;	//r、g、b、a为4个通道的数组 顺序为从左下到右上，先行后列
     bool isOpen=false;
+    bool isReverse=false;
+    BITMAPFILEHEADER bf;
+    BITMAPINFOHEADER bi;
+    RGBQUAD colorMap[256];
+    std::vector<uint8_t> imgData;
+
 public:
 
     //从文件读入QImage自动探测
@@ -106,7 +113,7 @@ public:
     void FreePixmap();	//清空数据
 
     shared_ptr<QImage> Output();
-
+    bool SaveImage(const char* path);//bmp格式
 
 
     int ConvertFormat(unsigned int newFormat, int thre=-1);	//转换格式
@@ -153,8 +160,8 @@ public:
     const unsigned char *getA(unsigned int x, unsigned int y) const { if (x < width&&y < height) return a + y*width + x; return NULL; } //返回(x,y)坐标处的a值指针
     Pixel32b getPixel(unsigned int x,unsigned int y) const;	//获得(x,y)处的像素点颜色
     bool getPicOPen();//是否加载图片
-
-
+    bool getReverse();//是否是bmp
+    bool setReverse(bool _isReverse);//
     unsigned char *getR(unsigned int x, unsigned int y) { if (x < width&&y < height) return r + y*width + x; return NULL; } //非常量版 返回(x,y)坐标处的r值指针
     unsigned char *getG(unsigned int x, unsigned int y) { if (x < width&&y < height) return g + y*width + x; return NULL; }//非常量版 返回(x,y)坐标处的g值指针
     unsigned char *getB(unsigned int x, unsigned int y) { if (x < width&&y < height) return b + y*width + x; return NULL; }//非常量版 返回(x,y)坐标处的b值指针

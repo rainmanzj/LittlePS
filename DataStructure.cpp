@@ -33,12 +33,10 @@ Pixmap::Pixmap(QString fileName):height(0),width(0),format(PIXMAP::FMT_NULL), r(
 
 }
 
-Pixmap::Pixmap(QString fileName,QString fileType)
+Pixmap::Pixmap(QString fileName,QString fileType):height(0),width(0),format(PIXMAP::FMT_NULL), r(NULL), g(NULL), b(NULL), a(NULL)
 {
     if(fileType=="BMP"){
-        BITMAPFILEHEADER bf;
-        BITMAPINFOHEADER bi;
-        RGBQUAD *lpRGB;
+
         FILE * fp;
         QByteArray ba=fileName.toLatin1();
         char *file=ba.data();
@@ -56,8 +54,20 @@ Pixmap::Pixmap(QString fileName,QString fileType)
         fread(&bi,40,1,fp);
         LONG bmpWidth = bi.biWidth;
         LONG bmpHeight = bi.biHeight;
+        width=bmpWidth;
+        height=bmpHeight;
+        isOpen=true;
+        isReverse=true;
+        format=PIXMAP::FMT_RGB;
 
-        if(bi.biBitCount==24||bi.biBitCount==32){
+        r = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+        g = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+        b = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+        a = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
+
+        UNUM8 *pr=r,*pg=g,*pb=b,*pa=a;
+
+        if(bi.biBitCount==24){
             //真彩色，直接可以读颜色咯
             int totalSize = (bmpWidth *bi.biBitCount/8+3)/4*4*bmpHeight;
             BYTE *pBmpBuf = new BYTE[totalSize];
@@ -65,24 +75,12 @@ Pixmap::Pixmap(QString fileName,QString fileType)
             while(true)
             {
                 int iret = fread(&pBmpBuf[size],1,1,fp);
+                imgData.push_back(pBmpBuf[size]);
                 if(iret == 0)
                     break;
                 size = size + iret;
             }
             fclose(fp);
-
-            width=bmpWidth;
-            height=bmpHeight;
-            r = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
-            g = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
-            b = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
-            a = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
-            isOpen=true;
-            format=PIXMAP::FMT_RGB;
-            //a在32位的时候是可能的吗？
-            memset(a, 255, width*height);
-            unsigned char *pr=r,*pg=g,*pb=b;
-
             //开始存到Pixmap里面
             unsigned int pitch=width%4;
             for(unsigned int i=0;i<height;i++)
@@ -93,61 +91,46 @@ Pixmap::Pixmap(QString fileName,QString fileType)
                     *pr++=pBmpBuf[(i*width+j)*3+2+realPitch];
                     *pg++=pBmpBuf[(i*width+j)*3+1+realPitch];
                     *pb++=pBmpBuf[(i*width+j)*3+realPitch];
+                    *pa++=255;
                 }
             }
             delete [] pBmpBuf;
             pBmpBuf = NULL;
+
             return ;
     }else if(bi.biBitCount==8){
             //8位 256 的图，可能是彩色，也可能是灰度
             //注意读入调色板应该有256个元素
-
-            lpRGB=(RGBQUAD *)malloc(4*256);
-            fread(&lpRGB,1,256,fp);
-
-            int totalSize = (bmpWidth *bi.biBitCount/8+3)/4*4*bmpHeight;
-            BYTE *pBmpBuf = new BYTE[totalSize];
-            size_t size = 0;
-            while(true)
+            fread(&colorMap, sizeof(RGBQUAD), 256, fp);
+            int channels = 1;
+            int offset = 0;
+            int linelength = bmpWidth * channels;
+            offset = linelength % 4;
+            if (offset > 0)
             {
-                int iret = fread(&pBmpBuf[size],1,1,fp);
-                if(iret == 0)
-                    break;
-                size = size + iret;
+                offset = 4 - offset;
             }
-            fclose(fp);
-
-            width=bmpWidth;
-            height=bmpHeight;
-            r = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
-            g = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
-            b = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
-            a = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
-            isOpen=true;
-            format=PIXMAP::FMT_RGB;
-            //a在32位的时候是可能的吗？
-            memset(a, 255, width*height);
-            unsigned char *pr=r,*pg=g,*pb=b;
-
-            //开始存到Pixmap里面
-            unsigned int pitch=width%4;
-            for(unsigned int i=0;i<height;i++)
+            UNUM8 pixVal;
+            for (int i = 0; i < bmpHeight; i++)
             {
-                int realPitch=i*pitch;
-                for(unsigned j=0;j<width;j++)
+                for (int j = 0; j < linelength; j++)
                 {
-                    *pr++=lpRGB[pBmpBuf[(i*width+j)*3+realPitch]].rgbRed;
-                    *pg++=lpRGB[pBmpBuf[(i*width+j)*3+realPitch]].rgbGreen;
-                    *pb++=lpRGB[pBmpBuf[(i*width+j)*3+realPitch]].rgbBlue;
+                    fread(&pixVal, sizeof(UNUM8), 1, fp);
+                    *pr++=colorMap[pixVal].rgbRed;
+                    *pg++=colorMap[pixVal].rgbGreen;
+                    *pb++=colorMap[pixVal].rgbBlue;
+                    *pa++=255;
+                    imgData.push_back(pixVal);
+                }
+                for (int k = 0; k < offset; k++)
+                {
+                    fread(&pixVal, sizeof(UNUM8), 1, fp);
                 }
             }
-            delete [] pBmpBuf;
-            pBmpBuf = NULL;
+            fclose(fp);
             return ;
 
-        }else if(bi.biBitCount==1){
-
-        }else{
+        }else {
             return;
         }
     }
@@ -236,6 +219,14 @@ shared_ptr<QImage> Pixmap::Output()
             color.setAlpha(*pa++);
             image->setPixel(QPoint(x,y),color.rgba());
         }
+
+        if(isReverse){
+            QTransform matrix;
+            matrix.rotate(180);
+            *image=image->transformed(matrix);
+            *image = image->mirrored(true, false);
+        }
+
     return image;
 }
 
@@ -419,13 +410,13 @@ int Pixmap::ConvertToYCbCr(){
     case FMT_YUV:
     case FMT_HSI:ConvertToRGB();
     case FMT_RGB:
-        UNUM8 cr, cg, cb, *rp = r, *gp = g, *bp = b, y;
+        UNUM8 cr, cg, cb, *rp = r, *gp = g, *bp = b;
         for (unsigned int i = 0; i < width*height; i++)
         {
             cr = *rp;
             cg = *gp;
             cb = *bp;
-            *rp++ = y = (UNUM8)(0.257*cr + 0.564*cg + 0.098*cb+15);
+            *rp++ = (UNUM8)(0.257*cr + 0.564*cg + 0.098*cb+15);
             *gp++ = (UNUM8)(-0.148*cr-0.291*cg+0.439*cb+127);
             *bp++ = (UNUM8)(0.439*cr-0.368*cg-0.071*cb+127);
         }
@@ -488,13 +479,10 @@ Pixmap* Pixmap::OrderDitherToBin(double * filter, unsigned int filterSize)
 
     int MaxVal=filterSize*filterSize-1;    
     Pixmap* res =new Pixmap(width,height);
+    res->setReverse(isReverse);
     unsigned char *dataR = res->getRHead();//after
     unsigned char *dataG = res->getGHead();
     unsigned char *dataB = res->getBHead();
-
-//    unsigned char *R = getRHead();//before
-//    unsigned char *G = getGHead();
-//    unsigned char *B = getBHead();
 
     for (unsigned int x = 0; x < width; x+=filterSize)
         for (unsigned int y = 0; y < height; y+=filterSize)
@@ -522,18 +510,12 @@ Pixmap* Pixmap::UnOrderedDitherToBin(double * filter, unsigned int filterSize)
     int MaxVal=filterSize*filterSize-1;
     int newWidth=width*filterSize;
     int newHeight=height*filterSize;
-    Pixmap* res =new Pixmap(newWidth,newHeight);
 
+    Pixmap* res =new Pixmap(newWidth,newHeight);
+    res->setReverse(isReverse);
     unsigned char *dataR = res->getRHead();//after
     unsigned char *dataG = res->getGHead();
     unsigned char *dataB = res->getBHead();
-
-    unsigned char *R = getRHead();//before
-    unsigned char *G = getGHead();
-    unsigned char *B = getBHead();
-
-
-    R = getRHead();//before
 
     for (unsigned int y = 0; y < height; y++)
         for (unsigned int x = 0; x < width; x++)
@@ -766,12 +748,72 @@ bool Pixmap::getPicOPen(){
     return isOpen;
 }
 
+bool Pixmap::getReverse(){
+    return isReverse;
+}
+
+bool Pixmap::setReverse(bool _isReverse){
+    isReverse=_isReverse;
+    return _isReverse;
+}
+
 double Pixmap::Gaussian(double x,double r)
 {
     const double tmp=pow(2*PI,0.5);
     return pow(2.7182818,-x*x/(2*r*r))/(r*tmp);
 }
 
+
+bool Pixmap::SaveImage(const char* path)
+{
+    FILE* pFile;
+    pFile = fopen(path, "wb");
+    if (!pFile)
+    {
+        return 0;
+    }
+    // Processing
+    fwrite(&bf, 14, 1, pFile);
+    fwrite(&bi, 40, 1, pFile);
+    // Get Channel num of a pixel
+    int channels = 0;
+    if (bi.biBitCount == 8)
+    {
+        channels = 1;
+        fwrite(&colorMap, sizeof(RGBQUAD), 256, pFile);
+    }
+    else if (bi.biBitCount == 24)
+    {
+        channels = 3;
+    }
+    // Get offset of every scanline,length(scanline)=length(pixel)+offset
+    int offset = 0;
+    int linelength = bi.biWidth * channels;
+    offset = (channels * bi.biWidth) % 4;
+    if (offset > 0)
+    {
+        offset = 4 - offset;
+    }
+    // Write Pixel
+    uint8_t pixVal;
+    auto iter = imgData.begin();
+    for (int i = 0; i < bi.biHeight; i++)
+    {
+        for (int j = 0; j < linelength; j++)
+        {
+            pixVal = *iter;
+            fwrite(&pixVal, sizeof(uint8_t), 1, pFile);
+            iter += 1;
+        }
+        pixVal = 0;
+        for (int k = 0; k < offset; k++)
+        {
+            fwrite(&pixVal, sizeof(uint8_t), 1, pFile);
+        }
+    }
+    fclose(pFile);
+    return true;
+}
 
 //----------------------------Pixmap End-----------------------------//
 //----------------------------histogram begin------------------------//

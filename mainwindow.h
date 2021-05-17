@@ -62,6 +62,8 @@ private slots:
 
     void on_action_RGB_to_YCbCr_triggered();
 
+    void on_action_bmp_save_triggered();
+
 private:
     Ui::MainWindow *ui;
     Pixmap* curPixmap;

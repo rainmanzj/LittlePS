@@ -234,3 +234,21 @@ void MainWindow::on_action_RGB_to_YCbCr_triggered()
     ui->label->setPixmap(QPixmap::fromImage(*(curPixmap->Output())));
     update();
 }
+
+void MainWindow::on_action_bmp_save_triggered()
+{
+
+    QFileDialog fileDialog(this);
+    QString aimFileName=fileDialog.getSaveFileName(this,QStringLiteral("Save BMP File"),".","BMP (*.bmp)");
+    if(!aimFileName.isNull())
+    {
+        QByteArray ba=aimFileName.toLatin1();
+        char *file=ba.data();
+        curPixmap->SaveImage(file);
+        QMessageBox::information(this,"保存bmp","成功");
+    }else{
+        QMessageBox::warning(this,"保存bmp","保存图片失败！");
+        return;
+    }
+
+}

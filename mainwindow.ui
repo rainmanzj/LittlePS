@@ -76,6 +76,7 @@
     </property>
     <addaction name="action_openPic"/>
     <addaction name="action_open_pic_bmp"/>
+    <addaction name="action_bmp_save"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -196,6 +197,11 @@
   <action name="action_YCbCr_to_RGB">
    <property name="text">
     <string>YCbCrtoRGB</string>
+   </property>
+  </action>
+  <action name="action_bmp_save">
+   <property name="text">
+    <string>bmp格式图片保存</string>
    </property>
   </action>
  </widget>
