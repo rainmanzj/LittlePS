@@ -21,8 +21,9 @@ typedef struct strBmpFileInformation
 
 
 //设定位图宽高构造
-Pixmap::Pixmap(unsigned int width, unsigned int height, unsigned char value=0) :format(PIXMAP::FMT_NULL), r(NULL), g(NULL), b(NULL), a(NULL)
+Pixmap::Pixmap(unsigned int width, unsigned int height, unsigned char value=0) :format(PIXMAP::FMT_NULL), r(NULL), g(NULL), b(NULL), a(NULL),width(width),height(height)
 {
+
     r = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
     g = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
     b = (UNUM8*)malloc(sizeof(UNUM8)*width*height);
@@ -30,14 +31,14 @@ Pixmap::Pixmap(unsigned int width, unsigned int height, unsigned char value=0) :
     memset(r, value, width*height);
     memset(g, value, width*height);
     memset(b, value, width*height);
-    memset(a, value, width*height);
+    memset(a, 255, width*height);
     format = PIXMAP::FMT_RGB;
 }
 
-Pixmap::Pixmap(string fileName):height(0),width(0),format(PIXMAP::FMT_NULL), r(NULL), g(NULL), b(NULL), a(NULL)
+Pixmap::Pixmap(QString fileName):height(0),width(0),format(PIXMAP::FMT_NULL), r(NULL), g(NULL), b(NULL), a(NULL)
 
 {
-    QImage tmpImage(QString::fromStdString(fileName));
+    QImage tmpImage(fileName);
     tmpImage.convertToFormat(QImage::Format_ARGB32);
     if(!tmpImage.isNull())
     {
@@ -60,6 +61,7 @@ int Pixmap::Load(const Pixmap &pixmap)
         memcpy(g, pixmap.g, width*height);
         memcpy(b, pixmap.b, width*height);
         memcpy(a, pixmap.a, width*height);
+        isOpen=true;
         return 0;
     }
     else
@@ -303,17 +305,23 @@ int Pixmap::ConvertToGrey()
     return 0;
 }
 
-shared_ptr<Pixmap> Pixmap::OrderDitherToBin(double * filter, unsigned int filterSize)
+Pixmap* Pixmap::OrderDitherToBin(double * filter, unsigned int filterSize)
 {
     if (this->format == FMT_NULL || filter == NULL ||this->format==FMT_BIN)
         return nullptr;
     else if(this->format!=FMT_GREY)ConvertToGrey();
-    int MaxVal=(filterSize-1)*(filterSize-1);
-    shared_ptr<Pixmap> res=shared_ptr<Pixmap>(new Pixmap(width,height));
-    double *dataR = (double*)malloc(sizeof(double)*width*height);
-    double *dataG = (double*)malloc(sizeof(double)*width*height);
-    double *dataB = (double*)malloc(sizeof(double)*width*height);
-    double tmpR, tmpG, tmpB;
+
+
+
+    int MaxVal=filterSize*filterSize-1;    
+    Pixmap* res =new Pixmap(width,height);
+    unsigned char *dataR = res->getRHead();//after
+    unsigned char *dataG = res->getGHead();
+    unsigned char *dataB = res->getBHead();
+
+//    unsigned char *R = getRHead();//before
+//    unsigned char *G = getGHead();
+//    unsigned char *B = getBHead();
 
     for (unsigned int x = 0; x < width; x+=filterSize)
         for (unsigned int y = 0; y < height; y+=filterSize)
@@ -321,75 +329,106 @@ shared_ptr<Pixmap> Pixmap::OrderDitherToBin(double * filter, unsigned int filter
             for (unsigned int i = 0; i < filterSize; i++)
                 for (unsigned int j = 0; j < filterSize; j++)
                 {
-                    if((x+i)<width&&(y+i)<height){
-                        tmpR = (*(this->getR(x+i, y+j)))/255*MaxVal;
-                        tmpG = (*(this->getG(x+i, y+j)))/255*MaxVal;
-                        tmpB = (*(this->getB(x+i, y+j)))/255*MaxVal;
-                        *(dataR+y*width+x)=tmpR<(*(filter+j*filterSize+i))?0:255;
-                        *(dataG+y*width+x)=tmpG<(*(filter+j*filterSize+i))?0:255;
-                        *(dataB+y*width+x)=tmpB<(*(filter+j*filterSize+i))?0:255;
+                    if((x+i)<width&&(y+j)<height){
+                        *(dataR+y*width+x)=((*(this->getR(x+i, y+j)))/255.0*MaxVal)<(*(filter+j*filterSize+i))?0:255;
+                        *(dataG+y*width+x)=*(dataR+y*width+x);
+                        *(dataB+y*width+x)=*(dataR+y*width+x);
                     }
                 }
         }
 
-    UNUM8 *resR = res->getRHead(), *resG = res->getGHead(), *resB = res->getBHead(), *resA = res->getAHead();
-    const UNUM8 *srcA = this->getAHead();
-    for (unsigned int i = 0; i < width*height; i++, dataR++, dataG++, dataB++, resR++, resG++, resB++, resA++, srcA++)
-    {
-        *resR = (UNUM8)ClipToUNUM8(*dataR);
-        *resG = (UNUM8)ClipToUNUM8(*dataG);
-        *resB = (UNUM8)ClipToUNUM8(*dataB);
-        *resA = *srcA;
-    }
-    //delete src;
-    res->format=FMT_BIN;
+
+    format=FMT_BIN;
     return res;
 }
-shared_ptr<Pixmap> Pixmap::UnOrderedDitherToBin(double * filter, unsigned int filterSize)
+Pixmap* Pixmap::UnOrderedDitherToBin(double * filter, unsigned int filterSize)
 {
     if (this->format == FMT_NULL || filter == NULL ||this->format==FMT_BIN)
-        return nullptr;
-    else if(this->format!=FMT_GREY)ConvertToGrey();
-    int MaxVal=(filterSize-1)*(filterSize-1);
+        return nullptr ;
+    else if(this->format!=FMT_GREY) ConvertToGrey();
+    int MaxVal=filterSize*filterSize-1;
     int newWidth=width*filterSize;
     int newHeight=height*filterSize;
-    shared_ptr<Pixmap> res=shared_ptr<Pixmap>(new Pixmap(width,height));
-    double *dataR = (double*)malloc(sizeof(double)*newWidth*newHeight);
-    double *dataG = (double*)malloc(sizeof(double)*newWidth*newHeight);
-    double *dataB = (double*)malloc(sizeof(double)*newWidth*newHeight);
-    double tmpR, tmpG, tmpB;
+    Pixmap* res =new Pixmap(newWidth,newHeight);
 
-    for (unsigned int x = 0; x < width; x++)
-        for (unsigned int y = 0; y < height; y++)
+    unsigned char *dataR = res->getRHead();//after
+    unsigned char *dataG = res->getGHead();
+    unsigned char *dataB = res->getBHead();
+
+    unsigned char *R = getRHead();//before
+    unsigned char *G = getGHead();
+    unsigned char *B = getBHead();
+
+
+    R = getRHead();//before
+
+    for (unsigned int y = 0; y < height; y++)
+        for (unsigned int x = 0; x < width; x++)
         {
+            int m=x*filterSize,n=y*filterSize;
+
             for (unsigned int i = 0; i < filterSize; i++)
                 for (unsigned int j = 0; j < filterSize; j++)
                 {
-                    tmpR = (*(this->getR(x, y)))/255*MaxVal;
-                    tmpG = (*(this->getG(x, y)))/255*MaxVal;
-                    tmpB = (*(this->getB(x, y)))/255*MaxVal;
-                    *(dataR+y*width*filterSize+x*filterSize+i+j*width*filterSize)=tmpR<(*(filter+j*filterSize+i))?0:255;
-                    *(dataG+y*width*filterSize+x*filterSize+i+j*width*filterSize)=tmpG<(*(filter+j*filterSize+i))?0:255;
-                    *(dataB+y*width*filterSize+x*filterSize+i+j*width*filterSize)=tmpB<(*(filter+j*filterSize+i))?0:255;
+                    if(filter[i*filterSize+j]<*(getR(x,y))*MaxVal/255.0){
+                       *(dataR+(n+i)*newWidth+m+j)=255;
+                       *(dataG+(n+i)*newWidth+m+j)=255;
+                       *(dataB+(n+i)*newWidth+m+j)=255;
+                    }
+                    else {
+                       *(dataB+(n+i)*newWidth+m+j)=0;
+                       *(dataB+(n+i)*newWidth+m+j)=0;
+                       *(dataB+(n+i)*newWidth+m+j)=0;
+                    }
                 }
         }
-
-    UNUM8 *resR = res->getRHead(), *resG = res->getGHead(), *resB = res->getBHead(), *resA = res->getAHead();
-    const UNUM8 *srcA = this->getAHead();
-    for (unsigned int i = 0; i < width*height; i++, dataR++, dataG++, dataB++, resR++, resG++, resB++, resA++, srcA++)
-    {
-        *resR = (UNUM8)ClipToUNUM8(*dataR);
-        *resG = (UNUM8)ClipToUNUM8(*dataG);
-        *resB = (UNUM8)ClipToUNUM8(*dataB);
-        *resA = *srcA;
-    }
-    //delete src;
     res->format=FMT_BIN;
     return res;
 }
 
 
-
+int Pixmap::POWTransform(double gamma){
+    unsigned int oldFormat=format;
+    switch(format){
+    case FMT_NULL:
+    case FMT_BIN:return 0;
+    case FMT_GREY:
+    case FMT_HSI:
+    case FMT_RGB:ConvertToYUV();
+    case FMT_YUV:{
+        for(unsigned int i=0;i<height;i++){
+            for(unsigned int j=0;j<width;j++){
+                double data=*(r+i*width+j)/255.0;
+                data=pow(data,gamma);
+                *(r+i*width+j)=ceil(data*255.0);
+            }
+        }
+    }
+    }
+    ConvertFormat(oldFormat);
+    return 1;
+}
+int Pixmap::LOGTransform(double param){
+    unsigned int oldFormat=format;
+    switch(format){
+    case FMT_NULL:
+    case FMT_BIN:return 0;
+    case FMT_GREY:
+    case FMT_HSI:
+    case FMT_RGB:ConvertToYUV();
+    case FMT_YUV:{
+        for(unsigned int i=0;i<height;i++){
+            for(unsigned int j=0;j<width;j++){
+                double data=*(r+i*width+j)/255.0;
+                data=log(1 + param * data) / log(param + 1);
+                *(r+i*width+j)=ceil(data*255.0);
+            }
+        }
+    }
+    }
+    ConvertFormat(oldFormat);
+    return 1;
+}
 
 unsigned char Pixmap::OtsuGetThre()
 {
@@ -548,6 +587,10 @@ Pixel32b Pixmap::getPixel(unsigned int x, unsigned int y) const
     res.b = *getB(x, y);
     res.a = *getA(x, y);
     return res;
+}
+
+bool Pixmap::getPicOPen(){
+    return isOpen;
 }
 
 double Pixmap::Gaussian(double x,double r)

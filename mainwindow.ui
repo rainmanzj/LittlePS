@@ -13,9 +13,130 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar"/>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>文件</string>
+    </property>
+    <addaction name="action_openPic"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>模式转换</string>
+    </property>
+    <addaction name="action_to_binary"/>
+    <addaction name="action_dither"/>
+    <addaction name="action_ordered_dither"/>
+    <addaction name="action_RGB_to_HSI"/>
+    <addaction name="action_RG_to_YcbCr"/>
+    <addaction name="action_HSI_to_RGB"/>
+    <addaction name="action_YCbCr_to_RGB"/>
+    <addaction name="action_RGB_to_grey"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>图像增强</string>
+    </property>
+    <addaction name="action_histoEqualizing"/>
+    <addaction name="action_log"/>
+    <addaction name="action_power_law"/>
+   </widget>
+   <widget class="QMenu" name="menu_4">
+    <property name="title">
+     <string>图像压缩</string>
+    </property>
+    <addaction name="action_quantization"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
+   <addaction name="menu_4"/>
+  </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_openPic">
+   <property name="text">
+    <string>打开图片</string>
+   </property>
+  </action>
+  <action name="action_to_binary">
+   <property name="text">
+    <string>单阈值法</string>
+   </property>
+  </action>
+  <action name="action_histoEqualizing">
+   <property name="text">
+    <string>直方图均衡</string>
+   </property>
+  </action>
+  <action name="action_dither">
+   <property name="text">
+    <string>dither</string>
+   </property>
+  </action>
+  <action name="action_ordered_dither">
+   <property name="text">
+    <string>ordered dither</string>
+   </property>
+  </action>
+  <action name="action_log">
+   <property name="text">
+    <string>Log</string>
+   </property>
+  </action>
+  <action name="action_power_law">
+   <property name="text">
+    <string>power_law</string>
+   </property>
+  </action>
+  <action name="action_RGB_to_HSI">
+   <property name="text">
+    <string>RGBtoHSI</string>
+   </property>
+  </action>
+  <action name="action_RG_to_YcbCr">
+   <property name="text">
+    <string>RGBtoYCbCr</string>
+   </property>
+  </action>
+  <action name="action_HSI_to_RGB">
+   <property name="text">
+    <string>HSItoRGB</string>
+   </property>
+  </action>
+  <action name="action_YCbCr_to_RGB">
+   <property name="text">
+    <string>YCbCrtoRGB</string>
+   </property>
+  </action>
+  <action name="action_RGB_to_grey">
+   <property name="text">
+    <string>RGBtoGrey</string>
+   </property>
+  </action>
+  <action name="action_quantization">
+   <property name="text">
+    <string>均匀量化</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

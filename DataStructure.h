@@ -41,10 +41,11 @@ class Pixmap
 {
     unsigned int height, width, format;	//height为图像高度 width为图像宽度 format为状态
     UNUM8 *r, *g, *b, *a;	//r、g、b、a为4个通道的数组 顺序为从左下到右上，先行后列
+    bool isOpen=false;
 public:
 
     //从文件读入
-    Pixmap(string fileName);
+    Pixmap(QString fileName);
     //拷贝构造
     Pixmap(const Pixmap &pixmap);
     //设定位图宽高构造
@@ -69,8 +70,12 @@ public:
     unsigned char OtsuGetThre();	//获得大津法阈值
     int ConvertToBin(int thre=-1);	//二值化，若thre不在0~255之间，则先进行大津法求阈值操作
 
-    shared_ptr<Pixmap> OrderDitherToBin(double * filter, unsigned int filterSize);
-    shared_ptr<Pixmap> UnOrderedDitherToBin(double * filter, unsigned int filterSize);
+    Pixmap* OrderDitherToBin(double * filter, unsigned int filterSize);
+    Pixmap* UnOrderedDitherToBin(double * filter, unsigned int filterSize);
+
+    int POWTransform(double gamma=2.2);
+    int LOGTransform(double param=0.2);
+
 
     void ChangeLuma(int del);	//改变YUV通道中的Y值，并恢复原格式
     int InverseColor();	//反色
@@ -97,6 +102,8 @@ public:
     const unsigned char *getB(unsigned int x, unsigned int y) const { if (x < width&&y < height) return b + y*width + x; return NULL; } //返回(x,y)坐标处的b值指针
     const unsigned char *getA(unsigned int x, unsigned int y) const { if (x < width&&y < height) return a + y*width + x; return NULL; } //返回(x,y)坐标处的a值指针
     Pixel32b getPixel(unsigned int x,unsigned int y) const;	//获得(x,y)处的像素点颜色
+    bool getPicOPen();//是否加载图片
+
 
     unsigned char *getR(unsigned int x, unsigned int y) { if (x < width&&y < height) return r + y*width + x; return NULL; } //非常量版 返回(x,y)坐标处的r值指针
     unsigned char *getG(unsigned int x, unsigned int y) { if (x < width&&y < height) return g + y*width + x; return NULL; }//非常量版 返回(x,y)坐标处的g值指针
