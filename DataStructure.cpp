@@ -815,6 +815,147 @@ bool Pixmap::SaveImage(const char* path)
     return true;
 }
 
+Pixmap* Pixmap::blur(){
+
+    //double filter[]={};
+    unsigned int filterSize=3;
+    Pixmap* res =new Pixmap(width,height);
+    res->setReverse(isReverse);
+    unsigned char *dataR = res->getRHead();//after
+    unsigned char *dataG = res->getGHead();
+    unsigned char *dataB = res->getBHead();
+
+    for (unsigned int x = 0; x < width; x++)
+        for (unsigned int y = 0; y < height; y++)
+        {
+            //*(dataR+y*width+x)/=9;
+            for ( int i = -1; i < 2; i++)
+                for ( int j = -1; j < 2; j++)
+                {
+                    if((x+i)<width&&(y+j)<height){
+                        *(dataR+y*width+x)+=0.12*((*(this->getR(x+i, y+j))));
+
+
+                    }
+                }
+            *(dataG+y*width+x)=*(dataR+y*width+x);
+            *(dataB+y*width+x)=*(dataR+y*width+x);
+        }
+
+
+    format=FMT_BIN;
+    return res;
+
+}
+
+template<typename T> static T TransToUNUM8(T x)
+{
+    return x/2+127;
+}
+int Pixmap::OneLinearpredictor(double param){
+    if(format==FMT_NULL||format==FMT_BIN) return -1;
+    if(format!=FMT_GREY) ConvertToGrey();
+    double *fHat=new double[height*width];
+    double *e=new double[height*width];
+    for(unsigned int i=0;i<width;i++){
+        *(fHat+i)=(double)(*(r+i));
+    }
+    for(unsigned int i=1;i<height;i++){
+        for(unsigned int j=0;j<width;j++){
+            *(fHat+i*width+j)=param*(double)(*(r+(i-1)*width+j));
+            *(e+i*width+j)=*(r+i*width+j)-*(fHat+i*width+j);
+        }
+    }
+    for(unsigned int i=0;i<height;i++){
+        for(unsigned int j=0;j<width;j++){
+            *(r+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+            *(g+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+            *(b+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+        }
+    }
+    return 0;
+}
+int Pixmap::TwoLinearpredictor(double param1,double param2){
+    if(format==FMT_NULL||format==FMT_BIN) return -1;
+    if(format!=FMT_GREY) ConvertToGrey();
+    double *fHat=new double[height*width];
+    double *e=new double[height*width];
+    for(unsigned int i=0;i<width;i++){
+        *(fHat+i)=(double)(*(r+i));
+    }
+    for(unsigned int i=0;i<height;i++){
+        *(fHat+i*width)=(double)(*(r+i*width));
+    }
+    for(unsigned int i=1;i<height;i++){
+        for(unsigned int j=1;j<width;j++){
+            *(fHat+i*width+j)=param1*(double)(*(r+(i-1)*width+j))+param2*(double)(*(r+i*width+j-1));
+            *(e+i*width+j)=*(r+i*width+j)-*(fHat+i*width+j);
+        }
+    }
+    for(unsigned int i=0;i<height;i++){
+        for(unsigned int j=0;j<width;j++){
+            *(r+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+            *(g+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+            *(b+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+        }
+    }
+    return 0;
+}
+int Pixmap::ThreeLinearpredictor(double param1,double param2,double param3){
+    if(format==FMT_NULL||format==FMT_BIN) return -1;
+    if(format!=FMT_GREY) ConvertToGrey();
+    double *fHat=new double[height*width];
+    double *e=new double[height*width];
+    for(unsigned int i=0;i<width;i++){
+        *(fHat+i)=(double)(*(r+i));
+    }
+    for(unsigned int i=0;i<height;i++){
+        *(fHat+i*width)=(double)(*(r+i*width));
+    }
+    for(unsigned int i=1;i<height;i++){
+        for(unsigned int j=1;j<width;j++){
+            *(fHat+i*width+j)=param1*(double)(*(r+(i-1)*width+j))+param2*(double)(*(r+i*width+j-1))+param3*(double)(*(r+(i-1)*width+j-1));
+            *(e+i*width+j)=*(r+i*width+j)-*(fHat+i*width+j);
+        }
+    }
+    for(unsigned int i=0;i<height;i++){
+        for(unsigned int j=0;j<width;j++){
+            *(r+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+            *(g+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+            *(b+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+        }
+    }
+    return 0;
+}
+int Pixmap::FourLinearpredictor(double param1,double param2){
+    if(format==FMT_NULL||format==FMT_BIN) return -1;
+    if(format!=FMT_GREY) ConvertToGrey();
+    double *fHat=new double[height*width];
+    double *e=new double[height*width];
+    double h,v;
+    for(unsigned int i=0;i<width;i++){
+        *(fHat+i)=(double)(*(r+i));
+    }
+    for(unsigned int i=0;i<height;i++){
+        *(fHat+i*width)=(double)(*(r+i*width));
+    }
+    for(unsigned int i=1;i<height;i++){
+        for(unsigned int j=1;j<width;j++){
+            h=(double)(*(r+(i-1)*width+j))-(double)(*(r+(i-1)*width+j-1));
+            v=(double)(*(r+i*width+j-1))-(double)(*(r+(i-1)*width+j-1));
+            *(fHat+i*width+j)=h<=v?param1*(*(r+i*width+j-1)):param2*(*(r+(i-1)*width+j));
+            *(e+i*width+j)=*(r+i*width+j)-*(fHat+i*width+j);
+        }
+    }
+    for(unsigned int i=0;i<height;i++){
+        for(unsigned int j=0;j<width;j++){
+            *(r+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+            *(g+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+            *(b+i*width+j)=(UNUM8)TransToUNUM8(*(e+i*width+j));
+        }
+    }
+    return 0;
+}
 //----------------------------Pixmap End-----------------------------//
 //----------------------------histogram begin------------------------//
 

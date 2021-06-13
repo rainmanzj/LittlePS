@@ -64,6 +64,14 @@ private slots:
 
     void on_action_bmp_save_triggered();
 
+    void on_action_predict_triggered();
+
+    void on_action_DCT_triggered();
+
+    void on_action_IDCT_triggered();
+
+    void on_action_DCT_Compress_triggered();
+
 private:
     Ui::MainWindow *ui;
     Pixmap* curPixmap;

@@ -139,6 +139,7 @@ public:
     int LogOperation();	//对数操作
     int HistoEqualizing();	//直方图均衡
     static double Gaussian(double x,double r);//计算高斯分布
+    Pixmap* blur();//模糊
 
     const unsigned char *getRHead() const { return r; }	//返回r数组
     const unsigned char *getGHead() const { return g; }	//返回g数组
@@ -167,6 +168,11 @@ public:
     unsigned char *getB(unsigned int x, unsigned int y) { if (x < width&&y < height) return b + y*width + x; return NULL; }//非常量版 返回(x,y)坐标处的b值指针
     unsigned char *getA(unsigned int x, unsigned int y) { if (x < width&&y < height) return a + y*width + x; return NULL; }//非常量版 返回(x,y)坐标处的a值指针
 
+
+    int OneLinearpredictor(double param=0.97);
+    int TwoLinearpredictor(double param1=0.5,double param2=0.5);
+    int ThreeLinearpredictor(double param1=0.75,double param2=0.75,double param3=-0.5);
+    int FourLinearpredictor(double param1=0.97,double param2=0.97);
 };
 
 
