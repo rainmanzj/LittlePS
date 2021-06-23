@@ -1,0 +1,700 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>913</width>
+    <height>828</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <stylestrategy>PreferDefault</stylestrategy>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Little PhotoShop</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../imgs.qrc">
+    <normaloff>:/img/img/icon.png</normaloff>:/img/img/icon.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="foreColorButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>40</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="penWidthSlider">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="penStyleComboBox"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="backColorButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>40</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="brushStyleComboBox"/>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QScrollArea" name="scrollArea">
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>818</width>
+           <height>818</height>
+          </rect>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="ImageWidget" name="MainDisplayWidget" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>800</width>
+              <height>800</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>3000</width>
+              <height>3000</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QToolButton" name="layoutUpToolButton">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../imgs.qrc">
+              <normaloff>:/img/img/up.png</normaloff>:/img/img/up.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="layoutDownToolButton">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../imgs.qrc">
+              <normaloff>:/img/img/down.png</normaloff>:/img/img/down.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="layoutDeleteToolButton">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../imgs.qrc">
+              <normaloff>:/img/img/delete.png</normaloff>:/img/img/delete.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QListWidget" name="layoutListWidget">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>600</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="scaleLabel">
+      <property name="text">
+       <string>缩放 100.00%</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>913</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>文件</string>
+    </property>
+    <addaction name="action_newCanvas"/>
+    <addaction name="action_openPro"/>
+    <addaction name="action_openPic"/>
+    <addaction name="action_saveCanvas"/>
+    <addaction name="action_saveAsPic"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>绘制</string>
+    </property>
+    <addaction name="action_drawLine"/>
+    <addaction name="action_drawEllipse"/>
+    <addaction name="action_drawRect"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>关于</string>
+    </property>
+    <addaction name="action_aboutPro"/>
+    <addaction name="action_aboutQt"/>
+    <addaction name="action_help"/>
+   </widget>
+   <widget class="QMenu" name="menu_4">
+    <property name="title">
+     <string>编辑</string>
+    </property>
+    <addaction name="action_move"/>
+    <addaction name="action_rotate"/>
+    <addaction name="action_scale"/>
+    <addaction name="action_undo"/>
+    <addaction name="action_redo"/>
+   </widget>
+   <widget class="QMenu" name="menu_5">
+    <property name="title">
+     <string>图层</string>
+    </property>
+    <addaction name="action_layoutUp"/>
+    <addaction name="action_layoutDown"/>
+    <addaction name="action_deleteLayout"/>
+    <addaction name="action_mergeLayout"/>
+   </widget>
+   <widget class="QMenu" name="menu_6">
+    <property name="title">
+     <string>滤镜</string>
+    </property>
+    <addaction name="action_inverse"/>
+    <addaction name="action_histoEqu"/>
+    <addaction name="action_logOper"/>
+    <addaction name="action_convo"/>
+    <addaction name="action_laplac"/>
+    <addaction name="action_grey"/>
+    <addaction name="action_bin"/>
+    <addaction name="action_lumaChange"/>
+    <addaction name="action_bilafilter"/>
+   </widget>
+   <widget class="QMenu" name="menu_7">
+    <property name="title">
+     <string>风格滤镜</string>
+    </property>
+    <addaction name="action_nostalgic"/>
+    <addaction name="action_fleeting"/>
+    <addaction name="action_lighting"/>
+    <addaction name="action_building_block"/>
+    <addaction name="action_comic"/>
+    <addaction name="action_lowLight"/>
+    <addaction name="action_casting"/>
+    <addaction name="action_neonLight"/>
+    <addaction name="action_exposal"/>
+    <addaction name="action_freezing"/>
+    <addaction name="action_oilPaint"/>
+   </widget>
+   <widget class="QMenu" name="menu_8">
+    <property name="title">
+     <string>超分辨率</string>
+    </property>
+    <addaction name="action_FSRCNN"/>
+    <addaction name="action_EDSR"/>
+    <addaction name="action_ESPCN"/>
+    <addaction name="action_LapSRN"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_4"/>
+   <addaction name="menu_5"/>
+   <addaction name="menu_6"/>
+   <addaction name="menu_7"/>
+   <addaction name="menu_8"/>
+   <addaction name="menu_3"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_openPic"/>
+   <addaction name="action_drawLine"/>
+   <addaction name="action_drawRect"/>
+   <addaction name="action_drawEllipse"/>
+   <addaction name="action_move"/>
+   <addaction name="action_rotate"/>
+   <addaction name="action_scale"/>
+   <addaction name="action_undo"/>
+   <addaction name="action_redo"/>
+   <addaction name="action_layoutUp"/>
+   <addaction name="action_layoutDown"/>
+   <addaction name="action_deleteLayout"/>
+   <addaction name="action_aboutPro"/>
+   <addaction name="action_help"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="action_newCanvas">
+   <property name="text">
+    <string>新建工程</string>
+   </property>
+  </action>
+  <action name="action_openPic">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/add.png</normaloff>:/img/img/add.png</iconset>
+   </property>
+   <property name="text">
+    <string>打开图片</string>
+   </property>
+  </action>
+  <action name="action_saveCanvas">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/save.png</normaloff>:/img/img/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>保存工程</string>
+   </property>
+  </action>
+  <action name="action_saveAsPic">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/png.png</normaloff>:/img/img/png.png</iconset>
+   </property>
+   <property name="text">
+    <string>另存为图片</string>
+   </property>
+  </action>
+  <action name="action_drawLine">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/line.png</normaloff>:/img/img/line.png</iconset>
+   </property>
+   <property name="text">
+    <string>画线</string>
+   </property>
+  </action>
+  <action name="action_drawEllipse">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/ellipse.png</normaloff>:/img/img/ellipse.png</iconset>
+   </property>
+   <property name="text">
+    <string>画椭圆</string>
+   </property>
+  </action>
+  <action name="action_aboutPro">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/information.png</normaloff>:/img/img/information.png</iconset>
+   </property>
+   <property name="text">
+    <string>关于此程序</string>
+   </property>
+  </action>
+  <action name="action_aboutQt">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/qt.png</normaloff>:/img/img/qt.png</iconset>
+   </property>
+   <property name="text">
+    <string>关于Qt</string>
+   </property>
+  </action>
+  <action name="action_help">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/help.png</normaloff>:/img/img/help.png</iconset>
+   </property>
+   <property name="text">
+    <string>帮助</string>
+   </property>
+  </action>
+  <action name="action_drawRect">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/Rect.png</normaloff>:/img/img/Rect.png</iconset>
+   </property>
+   <property name="text">
+    <string>画矩形</string>
+   </property>
+  </action>
+  <action name="action_move">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/Move.png</normaloff>:/img/img/Move.png</iconset>
+   </property>
+   <property name="text">
+    <string>平移</string>
+   </property>
+  </action>
+  <action name="action_rotate">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/Rotate.png</normaloff>:/img/img/Rotate.png</iconset>
+   </property>
+   <property name="text">
+    <string>旋转</string>
+   </property>
+  </action>
+  <action name="action_scale">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/Scale.png</normaloff>:/img/img/Scale.png</iconset>
+   </property>
+   <property name="text">
+    <string>缩放</string>
+   </property>
+  </action>
+  <action name="action_undo">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/undo.png</normaloff>:/img/img/undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>撤销</string>
+   </property>
+  </action>
+  <action name="action_redo">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/redo.png</normaloff>:/img/img/redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>重做</string>
+   </property>
+  </action>
+  <action name="action_openPro">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/file.png</normaloff>:/img/img/file.png</iconset>
+   </property>
+   <property name="text">
+    <string>打开工程</string>
+   </property>
+  </action>
+  <action name="action_deleteLayout">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/delete.png</normaloff>:/img/img/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>删除图层</string>
+   </property>
+  </action>
+  <action name="action_layoutUp">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/up.png</normaloff>:/img/img/up.png</iconset>
+   </property>
+   <property name="text">
+    <string>上移图层</string>
+   </property>
+  </action>
+  <action name="action_layoutDown">
+   <property name="icon">
+    <iconset resource="../../imgs.qrc">
+     <normaloff>:/img/img/down.png</normaloff>:/img/img/down.png</iconset>
+   </property>
+   <property name="text">
+    <string>下移图层</string>
+   </property>
+  </action>
+  <action name="action_inverse">
+   <property name="text">
+    <string>反色</string>
+   </property>
+  </action>
+  <action name="action_histoEqu">
+   <property name="text">
+    <string>直方图均衡</string>
+   </property>
+  </action>
+  <action name="action_logOper">
+   <property name="text">
+    <string>自动亮度适应</string>
+   </property>
+  </action>
+  <action name="action_mergeLayout">
+   <property name="text">
+    <string>合并全部图层</string>
+   </property>
+  </action>
+  <action name="action_convo">
+   <property name="text">
+    <string>通用卷积变换</string>
+   </property>
+  </action>
+  <action name="action_laplac">
+   <property name="text">
+    <string>拉普拉斯图像增强</string>
+   </property>
+  </action>
+  <action name="action_grey">
+   <property name="text">
+    <string>灰阶化</string>
+   </property>
+  </action>
+  <action name="action_bin">
+   <property name="text">
+    <string>二值化</string>
+   </property>
+  </action>
+  <action name="action_bilafilter">
+   <property name="text">
+    <string>双边滤波</string>
+   </property>
+  </action>
+  <action name="action_lumaChange">
+   <property name="text">
+    <string>亮度调整</string>
+   </property>
+  </action>
+  <action name="action_nostalgic">
+   <property name="text">
+    <string>怀旧特效</string>
+   </property>
+  </action>
+  <action name="action_fleeting">
+   <property name="text">
+    <string>流年特效</string>
+   </property>
+  </action>
+  <action name="action_lighting">
+   <property name="text">
+    <string>光照特效</string>
+   </property>
+  </action>
+  <action name="action_building_block">
+   <property name="text">
+    <string>积木特效</string>
+   </property>
+  </action>
+  <action name="action_comic">
+   <property name="text">
+    <string>连环画特效</string>
+   </property>
+  </action>
+  <action name="action_lowLight">
+   <property name="text">
+    <string>暗调特效</string>
+   </property>
+  </action>
+  <action name="action_casting">
+   <property name="text">
+    <string>熔铸特效</string>
+   </property>
+  </action>
+  <action name="action_neonLight">
+   <property name="text">
+    <string>霓虹特效</string>
+   </property>
+  </action>
+  <action name="action_exposal">
+   <property name="text">
+    <string>曝光特效</string>
+   </property>
+  </action>
+  <action name="action_freezing">
+   <property name="text">
+    <string>冰冻特效</string>
+   </property>
+  </action>
+  <action name="action_oilPaint">
+   <property name="text">
+    <string>油画特效</string>
+   </property>
+  </action>
+  <action name="action_FSRCNN">
+   <property name="text">
+    <string>FSRCNN</string>
+   </property>
+  </action>
+  <action name="action_EDSR">
+   <property name="text">
+    <string>EDSR</string>
+   </property>
+  </action>
+  <action name="action_ESPCN">
+   <property name="text">
+    <string>ESPCN</string>
+   </property>
+  </action>
+  <action name="action_LapSRN">
+   <property name="text">
+    <string>LapSRN</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ImageWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">src/View/imagewidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../imgs.qrc"/>
+ </resources>
+ <connections/>
+</ui>
