@@ -9,7 +9,7 @@
 
 ### 架构说明：
 
-![image-20210625110239846](img\image-20210625110239846.png)
+![image-20210625110239846](img/image-20210625110239846.png)
 
 Model：保存图层数据，当前画笔等参数
 
@@ -19,7 +19,7 @@ ViewUI：布局显示ViewModel整合完毕的图片
 
 ### 功能模块
 
-![image-20210625110305296](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625110305296.png)
+![image-20210625110305296](img/image-20210625110305296.png)
 
 
 
@@ -77,7 +77,7 @@ LapSRN用到 X2、X4 、X8以及原始 train 和 Validation 数据。
 
  FSRCNN主要的目的是加速SRCNN模型。重新设计SRCNN结构，主要 在三个方面：一是使用了一个解卷积层在最后，这个作用是从没有差值的低分辨率图像直接映射到高分辨率图像。第二是，重新改变输入特征维数。第三是使用了更小的卷积核但是使用了更多的映射层。针对SRCNN中有两点限制了速度。第一点，低分辨率图像需要上采样（通过三次插值）；第二点，非线性映射步骤，需要缩减参数加快速度。对于第一个问题采用解卷积层代替三次插值，针对第二个问题，添加萎缩层和扩张层，并将一个大层用一些小层（卷积核大小是3*3）来代替。整个网络结构类似于漏斗的形状，中间细两端粗。这个网络不仅仅速度快，而且不需要更改参数除了最后一个解卷积层。三个贡献：1、设计漏斗结构的卷积网络，不需要预处理操作2、速度提升3、训练速度快，只要改变最后的解卷积层就可以。
 
-![image-20210625111013923](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625111013923.png)
+![image-20210625111013923](img/image-20210625111013923.png)
 
 
 
@@ -99,7 +99,7 @@ LapSRN用到 X2、X4 、X8以及原始 train 和 Validation 数据。
 
  EDSR借鉴了ResNet网络基于残差进行学习的机制，input经过一层卷积后兵分两路，一条路经过n层的ResBlock再卷积一次，一条路则直接通向交汇处，进行加权求和，再经过上采样的处理与卷积输出结果。但是EDSR与ResNet中的ResBlock有些不同，EDSR中没有BN层，没有标准化的过程。
 
-![image-20210625111030508](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625111030508.png)
+![image-20210625111030508](img/image-20210625111030508.png)
 
 •x2, x3, x4 trained models available
 
@@ -119,7 +119,7 @@ LapSRN用到 X2、X4 、X8以及原始 train 和 Validation 数据。
 
  像SRCNN那样的方法，由于需要将低分辨率图像通过上采样插值得到与高分辨率图像相同大小的尺寸，再输入到网络中，这意味着要在较高的分辨率上进行卷积操作，从而增加了计算复杂度。ESPCN直接在低分辨率图像尺寸上提取特征，计算得到高分辨率图像的高效方法。ESPCN网络结构如下图所示。
 
-![image-20210625111046350](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625111046350.png)
+![image-20210625111046350](img/image-20210625111046350.png)
 
 •x2, x3, x4 trained models available
 
@@ -141,11 +141,11 @@ LapSRN用到 X2、X4 、X8以及原始 train 和 Validation 数据。
 
  2.提出一种新的**loss**函数
 
-![image-20210625111125124](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625111125124.png)
+![image-20210625111125124](img/image-20210625111125124.png)
 
 LapSRN结构图：
 
-![image-20210625111122242](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625111122242.png)
+![image-20210625111122242](img/image-20210625111122242.png)
 
 •x2, x4, x8 trained models available
 
@@ -179,17 +179,17 @@ sr.setModel(/*模型名称, 倍数*/);
 
 ### **界面展示**(仅部分)
 
-![image-20210625110657948](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625110657948.png)
+![image-20210625110657948](img/image-20210625110657948.png)
 
 #### **绘图基本功能：基本图形绘制**
 
-![image-20210625110712793](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625110712793.png)
+![image-20210625110712793](img/image-20210625110712793.png)
 
 根据预设的填充样式与边框色绘制的矩形
 
 
 
-![image-20210625110722544](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625110722544.png)
+![image-20210625110722544](img/image-20210625110722544.png)
 
 实现基本图形的绘制
 
@@ -197,11 +197,11 @@ sr.setModel(/*模型名称, 倍数*/);
 
 #### **绘图基本功能：平移、旋转、缩放**
 
-![image-20210625110743886](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625110743886.png)
+![image-20210625110743886](img/image-20210625110743886.png)
 
-![image-20210625110748319](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625110748319.png)
+![image-20210625110748319](img/image-20210625110748319.png)
 
-![image-20210625110751583](D:\workspace\miniPS\miniPS\LittlePS\img\image-20210625110751583.png)
+![image-20210625110751583](img/image-20210625110751583.png)
 
 #### 
 
